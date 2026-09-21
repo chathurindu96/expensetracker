@@ -33,7 +33,7 @@ function App() {
         <Sidebar />
         <ToastContainer />
         
-        <main className="lg:ml-[260px] min-h-screen pb-20 lg:pb-0 transition-all duration-300">
+        <main className="lg:ml-[260px] min-h-screen pb-20 lg:pb-0 transition-all duration-300 overflow-x-hidden">
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<PageWrapper><Dashboard /></PageWrapper>} />

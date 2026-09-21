@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Upload, X, Filter } from 'lucide-react';
 import { galleryImages } from '../lib/mockData';
@@ -6,6 +6,24 @@ import { galleryImages } from '../lib/mockData';
 export function GalleryPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [filter, setFilter] = useState<'ALL' | 'BILL' | 'SHOP' | 'RECEIPT'>('ALL');
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (selectedImage) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [selectedImage]);
 
   const filteredImages = filter === 'ALL' 
     ? galleryImages 
@@ -93,34 +111,42 @@ export function GalleryPage() {
         ))}
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox - Fixed positioning to prevent layout shift */}
       <AnimatePresence>
         {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <motion.button
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[9998] bg-black/90 backdrop-blur-sm"
               onClick={() => setSelectedImage(null)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <X className="w-6 h-6" />
-            </motion.button>
-            <motion.img
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              src={galleryImages.find(img => img.id === selectedImage)?.url}
-              alt=""
-              className="max-w-full max-h-[80vh] rounded-xl object-contain"
-              onClick={(e) => e.stopPropagation()}
+              style={{ touchAction: 'none' }}
             />
-          </motion.div>
+            {/* Content */}
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+              <motion.button
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors pointer-events-auto"
+                onClick={() => setSelectedImage(null)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+              <motion.img
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                src={galleryImages.find(img => img.id === selectedImage)?.url}
+                alt=""
+                className="max-w-full max-h-[80vh] rounded-xl object-contain pointer-events-auto"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </>
         )}
       </AnimatePresence>
     </div>

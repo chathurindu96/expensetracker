@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, Plus, CheckCircle, AlertTriangle, X, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Wallet, Plus, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react';
 import { budgets } from '../lib/mockData';
 import { useToastStore, useBudgetStore } from '../lib/store';
+import { Modal } from '../components/ui/Modal';
 
 export function BudgetsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -138,90 +139,65 @@ export function BudgetsPage() {
       </div>
 
       {/* Create Budget Modal */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-            onClick={() => setShowCreateModal(false)}
-          >
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md rounded-2xl border p-6 shadow-2xl"
-              style={{ 
-                backgroundColor: 'var(--bg-elevated)',
-                borderColor: 'var(--border-color)'
+      <Modal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)} 
+        title="Create Budget"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Budget Name</label>
+            <input type="text" className="input-base" placeholder="e.g., Monthly Groceries" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Amount</label>
+              <input type="number" className="input-base" placeholder="500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Currency</label>
+              <select className="input-base">
+                <option>USD</option>
+                <option>EUR</option>
+                <option>GBP</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Start Date</label>
+              <input type="date" className="input-base" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>End Date</label>
+              <input type="date" className="input-base" />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <motion.button
+              onClick={() => {
+                setShowCreateModal(false);
+                addToast({ type: 'success', title: 'Budget created!', message: 'New budget has been added' });
               }}
-              onClick={(e) => e.stopPropagation()}
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white"
+              style={{ background: 'var(--accent-gradient)' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Create Budget</h2>
-                <button onClick={() => setShowCreateModal(false)} className="p-1.5 rounded-lg" style={{ color: 'var(--text-muted)' }}>
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Budget Name</label>
-                  <input type="text" className="input-base" placeholder="e.g., Monthly Groceries" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Amount</label>
-                    <input type="number" className="input-base" placeholder="500" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Currency</label>
-                    <select className="input-base">
-                      <option>USD</option>
-                      <option>EUR</option>
-                      <option>GBP</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Start Date</label>
-                    <input type="date" className="input-base" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>End Date</label>
-                    <input type="date" className="input-base" />
-                  </div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <motion.button
-                    onClick={() => {
-                      setShowCreateModal(false);
-                      addToast({ type: 'success', title: 'Budget created!', message: 'New budget has been added' });
-                    }}
-                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white"
-                    style={{ background: 'var(--accent-gradient)' }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Create Budget
-                  </motion.button>
-                  <motion.button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2.5 rounded-xl text-sm font-medium border"
-                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Cancel
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              Create Budget
+            </motion.button>
+            <motion.button
+              onClick={() => setShowCreateModal(false)}
+              className="px-4 py-2.5 rounded-xl text-sm font-medium border"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Cancel
+            </motion.button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

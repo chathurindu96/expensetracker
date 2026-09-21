@@ -69,6 +69,19 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Prevent layout shift when modals are open */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Ensure smooth transitions without reflow */
+#root {
+  isolation: isolate;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }

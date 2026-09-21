@@ -1,9 +1,43 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
-import { TrendingUp, Award, MapPin, Package } from 'lucide-react';
-import { priceHistory, shops } from '../lib/mockData';
+import { TrendingUp, Award, MapPin, Package, Search, ShoppingBag } from 'lucide-react';
+import { priceHistory, shops, billItems } from '../lib/mockData';
 
 export function AnalyticsPage() {
+  const [selectedItem, setSelectedItem] = useState<string>('Organic Milk');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Get unique items from billItems
+  const availableItems = Array.from(new Set(billItems.map(bi => bi.itemName)));
+  
+  // Filter items based on search
+  const filteredItems = availableItems.filter(item => 
+    item.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Generate price comparison data for selected item across shops
+  const generatePriceComparison = (itemName: string) => {
+    // Mock price data for different shops
+    const shopPrices = [
+      { shop: 'FreshMart', price: 4.50, availability: 'In Stock', lastUpdated: '2024-01-20' },
+      { shop: 'MegaStore', price: 4.25, availability: 'In Stock', lastUpdated: '2024-01-22' },
+      { shop: 'LocalGreens', price: 4.75, availability: 'In Stock', lastUpdated: '2024-01-25' },
+      { shop: 'QuickShop', price: 5.10, availability: 'Low Stock', lastUpdated: '2024-01-19' },
+      { shop: 'ValueMart', price: 3.99, availability: 'In Stock', lastUpdated: '2024-01-12' },
+    ];
+    
+    // Add some variation based on item name
+    const hash = itemName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return shopPrices.map(sp => ({
+      ...sp,
+      price: sp.price + (hash % 10) * 0.05,
+    })).sort((a, b) => a.price - b.price);
+  };
+
+  const priceComparison = generatePriceComparison(selectedItem);
+  const cheapestShop = priceComparison[0];
+
   // Transform price history for chart
   const chartData = priceHistory.reduce((acc: any[], item) => {
     const existing = acc.find(d => d.date === item.date);
@@ -35,10 +69,142 @@ export function AnalyticsPage() {
         </p>
       </div>
 
-      {/* Price Comparison Chart */}
+      {/* Price Comparison Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="card p-6"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <ShoppingBag className="w-5 h-5 text-primary-500" />
+          <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Price Comparison</h3>
+        </div>
+
+        {/* Item Selector */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+            Select Item to Compare
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+            <input
+              type="text"
+              placeholder="Search items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-base pl-10 mb-2"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+            {filteredItems.map((item) => (
+              <motion.button
+                key={item}
+                onClick={() => setSelectedItem(item)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  selectedItem === item ? 'text-white shadow-lg' : ''
+                }`}
+                style={{
+                  backgroundColor: selectedItem === item ? 'var(--color-primary-500)' : 'var(--bg-secondary)',
+                  color: selectedItem === item ? '#fff' : 'var(--text-secondary)',
+                  boxShadow: selectedItem === item ? '0 4px 12px rgba(59,130,246,0.3)' : 'none',
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {item}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* Selected Item Display */}
+        <div className="p-4 rounded-xl mb-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Selected Item</div>
+              <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{selectedItem}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Best Price</div>
+              <div className="text-lg font-bold text-green-500">${cheapestShop.price.toFixed(2)}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Award className="w-4 h-4 text-yellow-500" />
+            <span style={{ color: 'var(--text-secondary)' }}>
+              Cheapest at <strong style={{ color: 'var(--text-primary)' }}>{cheapestShop.shop}</strong>
+            </span>
+          </div>
+        </div>
+
+        {/* Price Comparison Table */}
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--border-color)' }}>
+          <table className="w-full">
+            <thead>
+              <tr style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <th className="text-left px-4 py-3 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Rank</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Shop</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Price</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Availability</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Updated</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
+              {priceComparison.map((item, i) => (
+                <motion.tr
+                  key={item.shop}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className={i === 0 ? 'bg-green-500/5' : ''}
+                >
+                  <td className="px-4 py-3">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      i === 0 ? 'bg-yellow-500/20 text-yellow-600' :
+                      i === 1 ? 'bg-gray-400/20 text-gray-500' :
+                      i === 2 ? 'bg-orange-500/20 text-orange-600' :
+                      'bg-primary-500/10 text-primary-500'
+                    }`}>
+                      #{i + 1}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                        style={{ background: 'var(--accent-gradient)' }}>
+                        {item.shop.charAt(0)}
+                      </div>
+                      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.shop}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={`text-sm font-bold ${i === 0 ? 'text-green-500' : ''}`} style={{ color: i === 0 ? undefined : 'var(--text-primary)' }}>
+                      ${item.price.toFixed(2)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`badge ${
+                      item.availability === 'In Stock' ? 'bg-green-500/10 text-green-600' :
+                      'bg-yellow-500/10 text-yellow-600'
+                    }`}>
+                      {item.availability}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right text-xs" style={{ color: 'var(--text-muted)' }}>
+                    {item.lastUpdated}
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+
+      {/* Price History Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
         className="card p-6"
       >
         <div className="flex items-center gap-2 mb-4">
@@ -73,7 +239,7 @@ export function AnalyticsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
           className="card p-6"
         >
           <div className="flex items-center gap-2 mb-4">
@@ -115,11 +281,11 @@ export function AnalyticsPage() {
           </div>
         </motion.div>
 
-        {/* Convenience Score Breakdown */}
+        {/* Expense by Shop */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
           className="card p-6"
         >
           <div className="flex items-center gap-2 mb-4">
@@ -154,7 +320,7 @@ export function AnalyticsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.5 }}
         className="card p-6"
       >
         <div className="flex items-center gap-2 mb-4">

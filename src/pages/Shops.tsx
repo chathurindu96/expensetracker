@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Plus, Search, MapPin, Phone, Star, Archive, Tag, X } from 'lucide-react';
 import { shops, tags } from '../lib/mockData';
 import { useToastStore } from '../lib/store';
+import { Modal } from '../components/ui/Modal';
 
 export function ShopsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,188 +139,152 @@ export function ShopsPage() {
       </div>
 
       {/* Create Shop Modal */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <Modal onClose={() => setShowCreateModal(false)} title="Add New Shop">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Shop Name</label>
-                <input type="text" className="input-base" placeholder="e.g., FreshMart" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Address</label>
-                <input type="text" className="input-base" placeholder="123 Main St" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Phone</label>
-                <input type="text" className="input-base" placeholder="555-0100" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Tags</label>
-                <div className="flex flex-wrap gap-2">
-                  {tags.slice(0, 5).map((tag) => (
-                    <button
-                      key={tag.id}
-                      className="px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105"
-                      style={{ 
-                        borderColor: tag.color,
-                        color: tag.color,
-                        backgroundColor: `${tag.color}10`
-                      }}
-                    >
-                      {tag.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <motion.button
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    addToast({ type: 'success', title: 'Shop created!', message: 'New shop has been added successfully' });
-                  }}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white"
-                  style={{ background: 'var(--accent-gradient)' }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Create Shop
-                </motion.button>
-                <motion.button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-sm font-medium border"
+      <Modal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)} 
+        title="Add New Shop"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Shop Name</label>
+            <input type="text" className="input-base" placeholder="e.g., FreshMart" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Address</label>
+            <input type="text" className="input-base" placeholder="123 Main St" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Phone</label>
+            <input type="text" className="input-base" placeholder="555-0100" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Tags</label>
+            <div className="flex flex-wrap gap-2">
+              {tags.slice(0, 5).map((tag) => (
+                <button
+                  key={tag.id}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105"
                   style={{ 
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--text-secondary)'
+                    borderColor: tag.color,
+                    color: tag.color,
+                    backgroundColor: `${tag.color}10`
                   }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
-                  Cancel
-                </motion.button>
-              </div>
+                  {tag.name}
+                </button>
+              ))}
             </div>
-          </Modal>
-        )}
-      </AnimatePresence>
+          </div>
+          <div className="flex gap-3 pt-4">
+            <motion.button
+              onClick={() => {
+                setShowCreateModal(false);
+                addToast({ type: 'success', title: 'Shop created!', message: 'New shop has been added successfully' });
+              }}
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white"
+              style={{ background: 'var(--accent-gradient)' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Create Shop
+            </motion.button>
+            <motion.button
+              onClick={() => setShowCreateModal(false)}
+              className="px-4 py-2.5 rounded-xl text-sm font-medium border"
+              style={{ 
+                borderColor: 'var(--border-color)',
+                color: 'var(--text-secondary)'
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Cancel
+            </motion.button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Tag Manager Modal */}
-      <AnimatePresence>
-        {showTagManager && (
-          <Modal onClose={() => setShowTagManager(false)} title="Manage Tags">
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <div
-                    key={tag.id}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium"
-                    style={{ 
-                      backgroundColor: `${tag.color}15`,
-                      color: tag.color
-                    }}
-                  >
-                    {tag.name}
-                    <button className="hover:opacity-70">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+      <Modal 
+        isOpen={showTagManager} 
+        onClose={() => setShowTagManager(false)} 
+        title="Manage Tags"
+      >
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <div
+                key={tag.id}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium"
+                style={{ 
+                  backgroundColor: `${tag.color}15`,
+                  color: tag.color
+                }}
+              >
+                {tag.name}
+                <button className="hover:opacity-70">
+                  <X className="w-3 h-3" />
+                </button>
               </div>
-              <div className="pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Add New Tag</label>
-                <div className="flex gap-2">
-                  <input type="text" className="input-base flex-1" placeholder="Tag name" />
-                  <input type="color" className="w-12 h-10 rounded-lg cursor-pointer" defaultValue="#3b82f6" />
-                  <motion.button
-                    className="px-4 py-2.5 rounded-xl text-sm font-medium text-white"
-                    style={{ background: 'var(--accent-gradient)' }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Add
-                  </motion.button>
+            ))}
+          </div>
+          <div className="pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>Add New Tag</label>
+            <div className="flex gap-2">
+              <input type="text" className="input-base flex-1" placeholder="Tag name" />
+              <input type="color" className="w-12 h-10 rounded-lg cursor-pointer" defaultValue="#3b82f6" />
+              <motion.button
+                className="px-4 py-2.5 rounded-xl text-sm font-medium text-white"
+                style={{ background: 'var(--accent-gradient)' }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Add
+              </motion.button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Shop Detail Modal */}
+      <Modal 
+        isOpen={!!selectedShop} 
+        onClose={() => setSelectedShop(null)} 
+        title="Shop Details"
+        size="lg"
+      >
+        {(() => {
+          const shop = shops.find(s => s.id === selectedShop);
+          if (!shop) return null;
+          return (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{shop.name}</h3>
+                <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+                    {shop.address}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+                    {shop.phone}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Total Bills</div>
+                  <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{shop.totalBills}</div>
+                </div>
+                <div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Total Spent</div>
+                  <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>${shop.totalSpent.toFixed(2)}</div>
                 </div>
               </div>
             </div>
-          </Modal>
-        )}
-      </AnimatePresence>
-
-      {/* Shop Detail Modal */}
-      <AnimatePresence>
-        {selectedShop && (
-          <Modal onClose={() => setSelectedShop(null)} title="Shop Details">
-            {(() => {
-              const shop = shops.find(s => s.id === selectedShop);
-              if (!shop) return null;
-              return (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{shop.name}</h3>
-                    <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-                        {shop.address}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-                        {shop.phone}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
-                    <div>
-                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Total Bills</div>
-                      <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{shop.totalBills}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Total Spent</div>
-                      <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>${shop.totalSpent.toFixed(2)}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </Modal>
-        )}
-      </AnimatePresence>
+          );
+        })()}
+      </Modal>
     </div>
-  );
-}
-
-function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="relative w-full max-w-md rounded-2xl border p-6 shadow-2xl"
-        style={{ 
-          backgroundColor: 'var(--bg-elevated)',
-          borderColor: 'var(--border-color)'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-opacity-10 transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        {children}
-      </motion.div>
-    </motion.div>
   );
 }
