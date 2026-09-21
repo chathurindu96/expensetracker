@@ -22,8 +22,11 @@ interface UIState {
   setSearchQuery: (query: string) => void;
 }
 
+// Detect initial screen size for responsive sidebar
+const isLargeScreen = typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
+
 export const useUIStore = create<UIState>((set) => ({
-  sidebarOpen: true,
+  sidebarOpen: isLargeScreen,
   activeModal: null,
   searchQuery: '',
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),

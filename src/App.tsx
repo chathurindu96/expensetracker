@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useThemeStore } from './lib/store';
+import { useThemeStore, useUIStore } from './lib/store';
 import { Sidebar, BottomNav } from './components/layout/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { ShopsPage } from './pages/Shops';
@@ -16,6 +16,7 @@ import { ToastContainer } from './components/ui/Toast';
 
 function App() {
   const { isDark } = useThemeStore();
+  const { sidebarOpen } = useUIStore();
 
   useEffect(() => {
     if (isDark) {
@@ -33,7 +34,12 @@ function App() {
         <Sidebar />
         <ToastContainer />
         
-        <main className="lg:ml-[260px] min-h-screen pb-20 lg:pb-0 transition-all duration-300 overflow-x-hidden">
+        <main 
+          className="min-h-screen pb-20 lg:pb-0 transition-all duration-300 overflow-x-hidden main-content"
+          style={{ 
+            '--sidebar-width': sidebarOpen ? '260px' : '72px',
+          } as React.CSSProperties}
+        >
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<PageWrapper><Dashboard /></PageWrapper>} />

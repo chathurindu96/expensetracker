@@ -38,7 +38,84 @@ export function Sidebar() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Mobile Sidebar Drawer */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.aside
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed top-0 left-0 h-full w-[280px] z-50 lg:hidden flex flex-col border-r"
+            style={{ 
+              backgroundColor: 'var(--bg-elevated)',
+              borderColor: 'var(--border-color)'
+            }}
+          >
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between h-16 px-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent-gradient)' }}>
+                  <Database className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>ExpenseTrack</span>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-1.5 rounded-lg"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Mobile Navigation */}
+            <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+                return (
+                  <motion.button
+                    key={item.path}
+                    onClick={() => {
+                      navigate(item.path);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      isActive ? 'text-white shadow-lg' : ''
+                    }`}
+                    style={{
+                      backgroundColor: isActive ? 'var(--color-primary-500)' : 'transparent',
+                      color: isActive ? '#fff' : 'var(--text-secondary)',
+                      boxShadow: isActive ? '0 4px 12px rgba(59,130,246,0.3)' : 'none',
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <span>{item.label}</span>
+                  </motion.button>
+                );
+              })}
+            </nav>
+
+            {/* Mobile User Section */}
+            <div className="p-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
+              <div className="flex items-center gap-3 px-3 py-2">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  style={{ background: 'var(--accent-gradient)' }}>
+                  JD
+                </div>
+                <div>
+                  <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>John Doe</div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Admin</div>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
       <motion.aside
         initial={false}
         animate={{ 
