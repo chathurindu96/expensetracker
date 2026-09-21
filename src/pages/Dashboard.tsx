@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Store, AlertCircle, Calendar, Target, Zap, Award } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area, Legend } from 'recharts';
 import { monthlyExpenses, categoryBreakdown, bills, shops, budgets } from '../lib/mockData';
 
 export function Dashboard() {
@@ -281,6 +281,47 @@ export function Dashboard() {
           </ResponsiveContainer>
         </motion.div>
 
+        {/* Category Spending Trends */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65 }}
+          className="card p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Category Trends</h3>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Spending by category over time</p>
+            </div>
+            <TrendingUp className="w-5 h-5 text-green-500" />
+          </div>
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={[
+              { month: 'Aug', Dairy: 120, Fruits: 95, Meat: 85 },
+              { month: 'Sep', Dairy: 110, Fruits: 88, Meat: 92 },
+              { month: 'Oct', Dairy: 135, Fruits: 102, Meat: 78 },
+              { month: 'Nov', Dairy: 125, Fruits: 98, Meat: 88 },
+              { month: 'Dec', Dairy: 145, Fruits: 110, Meat: 95 },
+              { month: 'Jan', Dairy: 130, Fruits: 105, Meat: 82 },
+            ]}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+              <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} />
+              <YAxis stroke="var(--text-muted)" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px'
+                }}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="Dairy" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="Fruits" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="Meat" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </motion.div>
+
         {/* Budget Progress */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -364,13 +405,51 @@ export function Dashboard() {
         </motion.div>
       </div>
 
+      {/* Most Expended Shops Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="card p-6"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Most Expended Shops</h3>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Total spending by store</p>
+          </div>
+          <Store className="w-5 h-5 text-primary-500" />
+        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={topShops.map(s => ({ name: s.name, spent: s.totalSpent, bills: s.totalBills }))} layout="vertical">
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+            <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />
+            <YAxis type="category" dataKey="name" stroke="var(--text-muted)" fontSize={12} width={100} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'var(--bg-elevated)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px'
+              }}
+              formatter={(value: number) => [`$${value.toFixed(2)}`, 'Spent']}
+            />
+            <Bar dataKey="spent" fill="url(#shopGradient)" radius={[0, 8, 8, 0]} />
+            <defs>
+              <linearGradient id="shopGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#8b5cf6" />
+              </linearGradient>
+            </defs>
+          </BarChart>
+        </ResponsiveContainer>
+      </motion.div>
+
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Top Shops */}
+        {/* Top Shops List */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
           className="card p-6"
         >
           <div className="flex items-center justify-between mb-4">
@@ -383,7 +462,7 @@ export function Dashboard() {
                 key={shop.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 + i * 0.05 }}
+                transition={{ delay: 0.9 + i * 0.05 }}
                 className="flex items-center gap-3 p-3 rounded-xl"
                 style={{ backgroundColor: 'var(--bg-secondary)' }}
               >

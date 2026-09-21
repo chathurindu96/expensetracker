@@ -18,20 +18,49 @@ export function AnalyticsPage() {
 
   // Generate price comparison data for selected item across shops
   const generatePriceComparison = (itemName: string) => {
-    // Mock price data for different shops
-    const shopPrices = [
-      { shop: 'FreshMart', price: 4.50, availability: 'In Stock', lastUpdated: '2024-01-20' },
-      { shop: 'MegaStore', price: 4.25, availability: 'In Stock', lastUpdated: '2024-01-22' },
-      { shop: 'LocalGreens', price: 4.75, availability: 'In Stock', lastUpdated: '2024-01-25' },
-      { shop: 'QuickShop', price: 5.10, availability: 'Low Stock', lastUpdated: '2024-01-19' },
-      { shop: 'ValueMart', price: 3.99, availability: 'In Stock', lastUpdated: '2024-01-12' },
-    ];
+    // Base prices for different categories
+    const categoryPrices: Record<string, number[]> = {
+      'Dairy': [4.50, 4.25, 4.75, 5.10, 3.99],
+      'Fruits': [2.50, 2.20, 2.80, 3.00, 1.99],
+      'Vegetables': [3.20, 2.95, 3.50, 3.80, 2.75],
+      'Meat': [8.99, 8.50, 9.50, 10.20, 7.99],
+      'Grains': [5.50, 5.25, 5.75, 6.10, 4.99],
+      'Bakery': [3.99, 3.75, 4.25, 4.50, 3.50],
+    };
+
+    // Determine category from item name
+    let category = 'Dairy'; // default
+    if (itemName.toLowerCase().includes('milk') || itemName.toLowerCase().includes('cheese') || itemName.toLowerCase().includes('egg')) {
+      category = 'Dairy';
+    } else if (itemName.toLowerCase().includes('apple') || itemName.toLowerCase().includes('banana') || itemName.toLowerCase().includes('orange')) {
+      category = 'Fruits';
+    } else if (itemName.toLowerCase().includes('tomato') || itemName.toLowerCase().includes('carrot') || itemName.toLowerCase().includes('lettuce')) {
+      category = 'Vegetables';
+    } else if (itemName.toLowerCase().includes('chicken') || itemName.toLowerCase().includes('beef') || itemName.toLowerCase().includes('fish')) {
+      category = 'Meat';
+    } else if (itemName.toLowerCase().includes('rice') || itemName.toLowerCase().includes('pasta') || itemName.toLowerCase().includes('bread')) {
+      category = 'Grains';
+    }
+
+    const basePrices = categoryPrices[category] || categoryPrices['Dairy'];
     
-    // Add some variation based on item name
+    // Add variation based on item name hash
     const hash = itemName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return shopPrices.map(sp => ({
-      ...sp,
-      price: sp.price + (hash % 10) * 0.05,
+    const variation = (hash % 20 - 10) * 0.05; // -0.50 to +0.50 variation
+    
+    const shopPrices = [
+      { shop: 'FreshMart', basePrice: basePrices[0] },
+      { shop: 'MegaStore', basePrice: basePrices[1] },
+      { shop: 'LocalGreens', basePrice: basePrices[2] },
+      { shop: 'QuickShop', basePrice: basePrices[3] },
+      { shop: 'ValueMart', basePrice: basePrices[4] },
+    ];
+
+    return shopPrices.map((sp, index) => ({
+      shop: sp.shop,
+      price: parseFloat((sp.basePrice + variation + (index * 0.1)).toFixed(2)),
+      availability: index === 3 ? 'Low Stock' : 'In Stock',
+      lastUpdated: `2024-01-${20 - index}`,
     })).sort((a, b) => a.price - b.price);
   };
 

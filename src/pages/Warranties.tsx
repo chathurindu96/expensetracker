@@ -4,10 +4,12 @@ import { Shield, Clock, AlertTriangle, CheckCircle, Bell, Plus, Upload, Eye, Cal
 import { warranties } from '../lib/mockData';
 import { useToastStore } from '../lib/store';
 import { Modal } from '../components/ui/Modal';
+import { DocumentViewer } from '../components/ui/DocumentViewer';
 
 export function WarrantiesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState<string | null>(null);
+  const [viewingDocument, setViewingDocument] = useState<{url: string; type: 'pdf' | 'image'; title: string} | null>(null);
   const { addToast } = useToastStore();
 
   const activeWarranties = warranties.filter(w => w.status === 'ACTIVE');
@@ -312,40 +314,34 @@ export function WarrantiesPage() {
                 Uploaded Documents
               </h4>
               <div className="space-y-2">
-                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                  <FileText className="w-5 h-5 text-blue-500" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      Warranty_Certificate.pdf
+                {selectedWarrantyData.documents && selectedWarrantyData.documents.length > 0 ? (
+                  selectedWarrantyData.documents.map((doc, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                      <FileText className={`w-5 h-5 ${doc.type === 'pdf' ? 'text-blue-500' : 'text-green-500'}`} />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                          {doc.name}
+                        </div>
+                        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                          {doc.size} • Uploaded on {selectedWarrantyData.purchaseDate}
+                        </div>
+                      </div>
+                      <motion.button
+                        onClick={() => setViewingDocument({ url: doc.url, type: doc.type, title: doc.name })}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        View
+                      </motion.button>
                     </div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>2.4 MB • Uploaded on {selectedWarrantyData.purchaseDate}</div>
+                  ))
+                ) : (
+                  <div className="p-4 rounded-xl text-center text-sm" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
+                    No documents uploaded
                   </div>
-                  <motion.button
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    View
-                  </motion.button>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                  <FileText className="w-5 h-5 text-green-500" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      Purchase_Receipt.jpg
-                    </div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>1.1 MB • Uploaded on {selectedWarrantyData.purchaseDate}</div>
-                  </div>
-                  <motion.button
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    View
-                  </motion.button>
-                </div>
+                )}
               </div>
             </div>
 
@@ -370,6 +366,15 @@ export function WarrantiesPage() {
           </div>
         )}
       </Modal>
+
+      {/* Document Viewer */}
+      <DocumentViewer
+        isOpen={!!viewingDocument}
+        onClose={() => setViewingDocument(null)}
+        documentUrl={viewingDocument?.url || ''}
+        documentType={viewingDocument?.type || 'pdf'}
+        title={viewingDocument?.title || ''}
+      />
     </div>
   );
 }

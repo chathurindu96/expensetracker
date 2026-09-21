@@ -12,16 +12,32 @@ interface ModalProps {
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const previousOverflow = useRef<string>('');
 
-  // Lock body scroll when modal is open - use class-based approach to prevent reflow
+  // Lock body scroll when modal is open - preserve scroll position
   useEffect(() => {
     if (isOpen) {
-      document.documentElement.style.overflow = 'hidden';
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      previousOverflow.current = document.body.style.overflow;
+      
+      // Apply styles to prevent layout shift
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
       document.body.style.overflow = 'hidden';
       
       return () => {
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
+        // Restore original state
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.overflow = previousOverflow.current;
+        
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
       };
     }
   }, [isOpen]);
@@ -47,47 +63,51 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Backdrop - fixed, no layout impact */}
+        <div 
+          className="fixed inset-0 z-[9999]"
+          style={{ 
+            isolation: 'isolate',
+            contain: 'layout style paint',
+          }}
+        >
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
-            style={{ touchAction: 'none' }}
           />
           
-          {/* Modal Container - fixed positioning, centered with flex */}
-          <div 
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
-            style={{ touchAction: 'none' }}
-          >
+          {/* Modal Container */}
+          <div className="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
             <motion.div
               ref={modalRef}
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ 
                 type: 'spring',
-                stiffness: 400,
-                damping: 30,
-                mass: 0.8
+                stiffness: 500,
+                damping: 35,
+                mass: 1
               }}
-              className={`relative w-full ${sizeClasses[size]} rounded-2xl border shadow-2xl pointer-events-auto overflow-hidden`}
+              className={`relative w-full ${sizeClasses[size]} my-8 rounded-2xl shadow-2xl`}
               style={{ 
                 backgroundColor: 'var(--bg-elevated)',
-                borderColor: 'var(--border-color)',
-                maxHeight: 'calc(100vh - 2rem)',
-                display: 'flex',
-                flexDirection: 'column',
+                border: '1px solid var(--border-color)',
+                maxHeight: 'calc(100vh - 4rem)',
               }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
-                style={{ borderColor: 'var(--border-color)' }}>
+              <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 z-10"
+                style={{ 
+                  borderColor: 'var(--border-color)',
+                  backgroundColor: 'var(--bg-elevated)',
+                  borderRadius: '16px 16px 0 0',
+                }}>
                 <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
                 <motion.button
                   onClick={onClose}
@@ -100,13 +120,13 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
                 </motion.button>
               </div>
               
-              {/* Content - scrollable */}
-              <div className="px-6 py-5 overflow-y-auto flex-1">
+              {/* Content */}
+              <div className="px-6 py-5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
                 {children}
               </div>
             </motion.div>
           </div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

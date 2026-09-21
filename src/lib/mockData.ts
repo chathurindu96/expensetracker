@@ -56,6 +56,12 @@ export interface Warranty {
   provider: string;
   status: 'ACTIVE' | 'EXPIRED' | 'CLAIMED';
   daysLeft: number;
+  documents?: {
+    name: string;
+    url: string;
+    type: 'pdf' | 'image';
+    size: string;
+  }[];
 }
 
 export interface PriceHistory {
@@ -115,11 +121,69 @@ export const budgets: Budget[] = [
 ];
 
 export const warranties: Warranty[] = [
-  { id: 'w1', itemName: 'Kitchen Blender', purchaseDate: '2023-06-15', expiryDate: '2025-06-15', provider: 'BlendTech', status: 'ACTIVE', daysLeft: 513 },
-  { id: 'w2', itemName: 'Coffee Machine', purchaseDate: '2023-09-01', expiryDate: '2024-09-01', provider: 'BrewMaster', status: 'ACTIVE', daysLeft: 256 },
-  { id: 'w3', itemName: 'Air Fryer', purchaseDate: '2022-12-25', expiryDate: '2024-02-25', provider: 'CrispAir', status: 'ACTIVE', daysLeft: 37 },
-  { id: 'w4', itemName: 'Toaster Oven', purchaseDate: '2022-01-10', expiryDate: '2023-01-10', provider: 'HeatWave', status: 'EXPIRED', daysLeft: 0 },
-  { id: 'w5', itemName: 'Food Processor', purchaseDate: '2023-11-20', expiryDate: '2025-11-20', provider: 'ChopMaster', status: 'ACTIVE', daysLeft: 670 },
+  { 
+    id: 'w1', 
+    itemName: 'Kitchen Blender', 
+    purchaseDate: '2023-06-15', 
+    expiryDate: '2025-06-15', 
+    provider: 'BlendTech', 
+    status: 'ACTIVE', 
+    daysLeft: 513,
+    documents: [
+      { name: 'Warranty_Certificate.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', type: 'pdf', size: '2.4 MB' },
+      { name: 'Purchase_Receipt.jpg', url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800', type: 'image', size: '1.1 MB' },
+    ]
+  },
+  { 
+    id: 'w2', 
+    itemName: 'Coffee Machine', 
+    purchaseDate: '2023-09-01', 
+    expiryDate: '2024-09-01', 
+    provider: 'BrewMaster', 
+    status: 'ACTIVE', 
+    daysLeft: 256,
+    documents: [
+      { name: 'Warranty_Certificate.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', type: 'pdf', size: '1.8 MB' },
+    ]
+  },
+  { 
+    id: 'w3', 
+    itemName: 'Air Fryer', 
+    purchaseDate: '2022-12-25', 
+    expiryDate: '2024-02-25', 
+    provider: 'CrispAir', 
+    status: 'ACTIVE', 
+    daysLeft: 37,
+    documents: [
+      { name: 'Warranty_Certificate.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', type: 'pdf', size: '2.1 MB' },
+      { name: 'Product_Image.jpg', url: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=800', type: 'image', size: '890 KB' },
+    ]
+  },
+  { 
+    id: 'w4', 
+    itemName: 'Toaster Oven', 
+    purchaseDate: '2022-01-10', 
+    expiryDate: '2023-01-10', 
+    provider: 'HeatWave', 
+    status: 'EXPIRED', 
+    daysLeft: 0,
+    documents: [
+      { name: 'Warranty_Certificate.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', type: 'pdf', size: '1.5 MB' },
+    ]
+  },
+  { 
+    id: 'w5', 
+    itemName: 'Food Processor', 
+    purchaseDate: '2023-11-20', 
+    expiryDate: '2025-11-20', 
+    provider: 'ChopMaster', 
+    status: 'ACTIVE', 
+    daysLeft: 670,
+    documents: [
+      { name: 'Warranty_Certificate.pdf', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', type: 'pdf', size: '2.8 MB' },
+      { name: 'Purchase_Receipt.jpg', url: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800', type: 'image', size: '1.3 MB' },
+    ]
+  },
 ];
 
 export const priceHistory: PriceHistory[] = [
